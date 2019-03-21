@@ -1,0 +1,8 @@
+prefix=/home/liuyuezhangadam/Desktop/gamecontroller/cmake-build-debug/devel
+
+Name: gamecontroller
+Description: Description of gamecontroller
+Version: 0.0.0
+Cflags: -I/home/liuyuezhangadam/Desktop/gamecontroller/cmake-build-debug/devel/include
+Libs: -L/home/liuyuezhangadam/Desktop/gamecontroller/cmake-build-debug/devel/lib 
+Requires: message_runtime

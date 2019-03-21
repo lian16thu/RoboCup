@@ -1,0 +1,40 @@
+<launch>
+
+  <!-- First, launch "simulation" for the estimation of the initial pose of our robot. The node publishes over "behavior/initial_pose". -->
+  <node name="simulation" pkg="simulation" type="simulation" output="screen">
+  </node>
+
+  <!-- Then, launch "behavior_head" for the rotation of the robot head. The node publishes the transformation "/robot_base" to "/robot_head". -->
+  <node name="behavior_head" pkg="localization" type="behavior_head" output="screen">
+  </node>
+
+  <!-- Then, launch "gait_odom_broadcaster". The node publishes the transformation "/odom" to "/robot_base".
+  Output is the particle set published over topic "localization/particle_set" -->
+  <node name="gait_odom_broadcaster" pkg="localization" type="gait_odom_broadcaster" output="screen">
+  </node>
+
+  <!-- First, launch "data_input_output". Node reads from vision topics and outputs localization result on topic "localization/output_data". -->
+  <node name="data_input_output_sim" pkg="localization" type="data_input_output_sim" output="screen">
+  </node>
+
+  <!-- Then, launch "particle_filter_localization". Node creates particle filter and field and realizes localization.
+  Output is the particle set published over topic "localization/particle_set" -->
+  <node name="particle_filter_localization_sim" pkg="localization" type="particle_filter_localization_sim" output="screen">
+  </node>
+
+  <!-- Then, launch "localization_visualization". Node creates visualization of the particles in our particle filter on the field.
+  Output is published over the topic "localization/visualization" -->
+  <node name="localization_visualization" pkg="localization" type="localization_visualization" output="screen">
+  </node>
+
+  <!-- Last, launch "image_view" to see the visualization results from topic "localization/particle_set" -->
+  <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+      <remap from="image" to="localization/visualization"/>
+      <param name="autosize" value="true" />
+  </node>
+
+  <!-- Then, launch "pathplaning" for the rotation of the robot head. The node publishes the transformation "/robot_base" to "/robot_head". 
+   <node name="pathplaning" pkg="pathplaning" type="pathplaning_state" output="screen"> 
+   </node>
+-->
+</launch>

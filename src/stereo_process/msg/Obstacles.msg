@@ -1,0 +1,6 @@
+Header header
+bool obstacles_detected
+float64 obstacle_range
+float64 obstacle_bearing
+float64 obstacle_x
+float64 obstacle_y

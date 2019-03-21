@@ -1,0 +1,422 @@
+/*
+ * opt_game_process: the main entry of the game.
+ *
+ * Reads:
+ * - pause
+ * - isGameStart
+ * - isGameOver
+ * - isReady
+ * - isAttacker
+ * - sec_state
+ *
+ * Writes:
+ * - headMode
+ * - kick_speed
+ * - attackMode
+ *
+ * Behaves:
+ * - behavior_nothing
+ * - behavior_initialize_motors
+ *
+ * Calls:
+ * - opt_defender_prepare
+ * - opt_xddd_attack
+ * - opt_search_for_ball_kick_off
+ * - opt_penalty
+ * - opt_free_kick
+ */
+
+
+/* Template for a generic state:
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                // logic for the state
+            }
+ */
+
+option opt_game_process
+{
+    initial state initialize_motors     // 0
+    {
+        decision
+        {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                if (state_time < T_MOTOR_INIT)
+                {
+                    stay;
+                }
+                else
+                {
+                    goto wait_for_ready;
+                }
+            }
+        }
+        action
+        {
+            headMode = FarMid;
+            behavior_initialize_motors(); // sends commands type 10 to robot to initialize motors
+        }
+    }
+
+    state wait_for_ready                // 1
+    {
+        decision
+        {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                if (!isReady)
+                {
+                    stay;
+                }
+                else if (isAttacker)
+                {
+                    goto initializing;
+                }
+                else
+                {
+                    goto defender_prepare;
+                }
+            }
+        }
+        action
+        {
+            //headMode = CloseMid;
+            behavior_nothing();
+        }
+    }
+
+    state defender_prepare              // 2
+    {
+        decision
+        {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                if (!action_done)
+                {
+                    stay;
+                }
+                else
+                {
+                    goto initializing;
+                }
+            }
+        }
+        action
+        {
+            opt_defender_prepare();
+        }
+    }
+
+    state initializing                  // 3  // not needed?
+    {
+        decision
+        {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                if (state_time < T_INIT)
+                {
+                    stay;
+                }
+                else
+                {
+                    goto wait_for_start;
+                }
+            }
+        }
+        action
+        {
+            headMode = CloseMid;
+            kick_speed = 0;
+            behavior_initialize();  // basic behavior initialize
+        }
+    }
+
+    state wait_for_start                // 4
+    {
+        decision
+        {
+            if (!isGameStart || isGameOver) {
+                stay;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                if (isAttacker)
+                {
+                    goto attack;
+                }
+                else
+                {
+                    goto search_ball;
+                }
+            }
+        }
+        action
+        {
+            headMode = CloseMid;
+            behavior_nothing();
+        }
+    }
+
+    state attack {     // 5
+        decision {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                if (!action_done) {
+                    stay;
+                }
+                else {
+                    stay;     // TODO: what to do after an attack is done? 
+                    // -> attack till a goal is scored. check isReady in all states after wait_for start
+                    // if isReady, goto wait_for_ready !!!!
+                }
+            }
+        }
+        action {
+            // Alternative 1: Kick to the side, follow the ball, turn and shoot
+            first_time_attack = true;
+            attackMode = dribble_kick;
+            opt_attack();
+
+            // Alternative 2: Dribble to the side, turn and shoot
+            // attackMode = dribble_kick;
+            // opt_attack();
+        }
+    }
+
+    state idle_state    // 6
+    {
+        decision
+        {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (state_time < T_IDLE) {
+                stay;
+            }
+            else {
+                if (sec_state == 0)
+                {
+                    goto search_ball;
+                }
+                else if (sec_state == 1 || sec_state == 6)
+                {
+                    goto penalty;
+                }
+                else if (sec_state == 4 || sec_state == 5)
+                {
+                    goto free_kick;
+                }
+                else if (sec_state == 3)
+                {
+                    goto time_out;
+                }
+                else
+                {
+                    goto search_ball;
+                }
+            }
+        }
+        action
+        {
+            headMode = FarMid;
+            behavior_nothing();
+        }
+    }
+
+    // TODO: this state is broken ???
+    state search_ball        // 7
+    {
+        decision
+        {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                if (!action_done) {
+                    stay;
+                }
+                else {
+                    // TODO: this part may need to be revised
+                    goto go_to_ball;  // goto go_to_ball
+                }
+            }
+        }
+        action
+        {
+            opt_search_for_ball_kick_off();
+        }
+    }
+
+        state go_to_ball        // 8
+    {
+        decision
+        {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                if (!action_done) {
+                    stay;
+                }
+                else {
+                    // TODO: this part may need to be revised
+                    goto shoot;  
+                }
+            }
+        }
+        action
+        {
+            opt_go_to_ball();
+        }
+    }
+
+        state shoot {                           // 9
+        decision {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                if (!action_done) {
+                    stay;
+                }
+                else {
+                    goto search_ball;
+                }
+            }
+        }
+        action {
+            // look at goal
+            headMode = FarMid;
+
+            // walking kick
+            kick_speed = 2;
+            opt_kick_ball();
+        }
+    }
+
+    state penalty    // 10
+    {
+        decision
+        {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                if (!action_done)
+                {
+                    stay;
+                }
+                else
+                {
+                    goto search_ball;
+                }
+            }
+        }
+        action
+        {
+            opt_penalty();
+        }
+    }
+
+    state free_kick    // 11
+    {
+        decision
+        {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else if (pause) {
+                goto idle_state;
+            }
+            else {
+                if (!action_done)
+                {
+                    stay;
+                }
+                else
+                {
+                    goto search_ball;
+                }
+            }
+        }
+        action
+        {
+            opt_free_kick();
+        }
+    }
+
+    state time_out        // 12
+    {
+        decision
+        {
+            if (isGameOver) {
+                goto game_over;
+            }
+            else {
+                goto search_ball;
+            }
+        }
+        action
+        {
+            behavior_nothing();
+        }
+    }
+
+
+    target state game_over    // 13
+    {
+        decision
+        {
+            stay;
+        }
+        action
+        {
+            behavior_nothing();
+        }
+    }
+}

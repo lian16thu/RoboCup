@@ -1,0 +1,117 @@
+/*
+ * opt_search_for_goal: Search for the goal, by iterating the head directions.
+ *
+ * Reads:
+ * - isGoalSeen
+ *
+ * Writes:
+ * - headMode
+ *
+ * Behaves:
+ * - behavior_nothing
+ * - behavior_initialize
+ */
+
+option opt_search_goal
+{
+    initial state start_goal_search                 // 0
+    {
+        decision {
+            goto look_up_mid;
+        }
+        action
+        {
+            behavior_nothing();
+        }
+    }
+
+    state look_up_mid           // 1
+    {
+        decision
+        {
+            if  (isGoalSeen)
+            {
+                goto goal_seen;
+            }
+            else if (state_time < T_SEARCH_BALL)
+            {
+                stay;
+            }
+            else
+            {
+                goto look_up_right;
+            }
+        }
+        action
+        {
+            headMode = FarMid;
+            behavior_initialize();
+        }
+    }
+
+    state look_up_right         // 3
+    {
+        decision
+        {
+            {
+                if (isGoalSeen)
+                {
+                    goto goal_seen;
+                }
+                else if (state_time < T_SEARCH_BALL)
+                {
+                    stay;
+                }
+                else
+                {
+                    goto look_up_left;
+                }
+            }
+        }
+        action
+        {
+            headMode = FarRight;
+            behavior_initialize();
+        }
+    }
+
+    state look_up_left          // 4
+    {
+        decision
+        {
+            if (isGoalSeen)
+            {
+                goto goal_seen;
+            }
+            else if (state_time < T_SEARCH_BALL)
+            {
+                stay;
+            }
+            else
+            {
+                goto look_up_mid;
+            }
+        }
+        action
+        {
+            headMode = FarLeft;
+            lastBallDir = FarLeft;
+            behavior_initialize();
+        }
+    }
+
+
+    target state goal_seen // 13
+    {
+        decision
+        {
+            stay;
+        }
+        action
+        {
+            headMode = HorizontalTrack;
+            behavior_nothing();
+        }
+    }
+}
+

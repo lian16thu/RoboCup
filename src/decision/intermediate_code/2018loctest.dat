@@ -1,0 +1,1985 @@
+// Intermediate code for the agents of 
+
+0
+10
+e _attackMode attackMode
+b ball_first_seen
+d ball_found_ball_bearing
+d ball_found_ball_range
+d camera_search_step
+b first_time_attack
+d goal_found_goal_bearing
+d goal_found_goal_range
+d robot_turn_theta
+b search_loop_complete
+
+14
+opt_attack 0
+opt_defender_prepare 0
+opt_free_kick 0
+opt_game_process 0
+opt_go_to_ball 0
+opt_go_to_shoot_position 0
+opt_high_kick 0
+opt_kick_ball 0
+opt_localization_test 0
+opt_penalty 0
+opt_search_for_ball 0
+opt_search_for_ball_kick_off 0
+opt_search_goal 0
+opt_stop_walking 0
+
+11
+search_for_ball n
+verify_ball_before_shoot n
+verify_goal_before_shoot n
+position_before_shoot n
+search_for_goal n
+shoot n
+walk_to_ball n
+verify_ball_while_walking n
+set_velocity_to_zero n
+rotate_to_ball n
+attack_done n
+
+search_for_ball
+0
+1
+o opt_search_for_ball
+0
+i
+!
+t
+t search_for_ball
+i
+| 2
+>
+i ballBearing
+0
+v 0.25
+<
+i ballBearing
+0
+v -0.25
+t rotate_to_ball
+i
+<
+i ballRange
+0
+c 0.5
+t verify_ball_before_shoot
+t walk_to_ball
+0
+2
+e headMode
+v _headMode.CloseMid 
+a behavior_nothing
+0
+i
+& 2
+<
+s
+*
+v 25
+c 100
+!
+i isBallSeen
+0
+t verify_ball_before_shoot
+i
+!
+i isBallSeen
+0
+t search_for_ball
+t verify_goal_before_shoot
+0
+2
+e headMode
+v _headMode.CloseMid 
+a behavior_nothing
+0
+i
+!
+i isGoalSeen
+0
+t search_for_goal
+t position_before_shoot
+0
+5
+e headMode
+v _headMode.CloseMid 
+d target_theta
+i shoot_position_theta
+0
+d target_x
+i shoot_position_x
+0
+d target_y
+i shoot_position_y
+0
+a behavior_approach_ball
+0
+i
+| 2
+<
+s
+c 500
+i is_robot_moving
+0
+t position_before_shoot
+t shoot
+0
+1
+o opt_search_goal
+0
+i
+!
+t
+t search_for_goal
+t position_before_shoot
+0
+3
+e headMode
+v _headMode.CloseMid 
+d kick_speed
+v 2
+o opt_kick_ball
+0
+i
+!
+t
+t shoot
+t attack_done
+0
+2
+e headMode
+q
+>
+i ballRange
+0
+v 1
+v _headMode.FarMid 
+v _headMode.CloseMid 
+a behavior_walk_to_ball
+0
+i
+!
+i isBallSeen
+0
+t search_for_ball
+i
+<
+i ballRange
+0
+c 0.5
+t verify_ball_while_walking
+t walk_to_ball
+0
+2
+e headMode
+q
+>
+i ballRange
+0
+v 1
+v _headMode.FarMid 
+v _headMode.CloseMid 
+a behavior_walk_to_ball
+0
+i
+!
+i isBallSeen
+0
+t search_for_ball
+i
+& 2
+<
+i ballRange
+0
+c 0.5
+>
+s
+*
+v 5
+c 100
+t set_velocity_to_zero
+i
+>
+i ballRange
+0
+c 0.5
+t walk_to_ball
+t verify_ball_while_walking
+0
+2
+e headMode
+v _headMode.CloseMid 
+a behavior_stop_walk
+0
+i
+i is_robot_moving
+0
+t set_velocity_to_zero
+t verify_ball_before_shoot
+0
+4
+e headMode
+q
+>
+i ballRange
+0
+v 1
+v _headMode.FarMid 
+v _headMode.CloseMid 
+d target_theta
+i ballBearing
+0
+d target_x
+v 0
+a behavior_rotate_around_center
+0
+i
+| 2
+<
+s
+c 500
+i is_robot_moving
+0
+t rotate_to_ball
+i
+!
+i isBallSeen
+0
+t search_for_ball
+i
+<
+i ballRange
+0
+c 0.5
+t verify_ball_before_shoot
+t walk_to_ball
+1
+1
+a behavior_nothing
+0
+t attack_done
+
+
+
+2
+walk_to_center n
+stop n
+
+walk_to_center
+0
+2
+d target_range
+v 3
+a behavior_step_forward
+0
+i
+i isSet
+0
+t stop
+t walk_to_center
+1
+1
+a behavior_nothing
+0
+t stop
+
+
+
+4
+search_ball n
+near_ball_adjust n
+freeze n
+before_kick n
+
+search_ball
+0
+1
+o opt_search_for_ball_kick_off
+0
+i
+& 2
+!
+t
+n
+i sec_state_info
+0
+v 1
+t search_ball
+i
+=
+i sec_state_info
+0
+v 1
+t freeze
+t near_ball_adjust
+0
+1
+a behavior_nothing
+0
+i
+& 2
+!
+t
+n
+i sec_state_info
+0
+v 1
+t near_ball_adjust
+t freeze
+0
+1
+a behavior_nothing
+0
+i
+=
+i sec_state_info
+0
+v 2
+t before_kick
+t freeze
+1
+1
+a behavior_nothing
+0
+t before_kick
+
+
+
+14
+initialize_motors n
+wait_for_ready n
+defender_prepare n
+initializing n
+wait_for_start n
+attack n
+idle_state n
+search_ball n
+go_to_ball n
+shoot n
+penalty n
+free_kick n
+time_out n
+game_over n
+
+initialize_motors
+0
+2
+e headMode
+v _headMode.FarMid 
+a behavior_initialize_motors
+0
+i
+i isGameOver
+0
+t game_over
+i
+i pause
+0
+t idle_state
+i
+<
+s
+c 500
+t initialize_motors
+t wait_for_ready
+0
+1
+a behavior_nothing
+0
+i
+i isGameOver
+0
+t game_over
+i
+i pause
+0
+t idle_state
+i
+!
+i isReady
+0
+t wait_for_ready
+i
+i isAttacker
+0
+t initializing
+t defender_prepare
+0
+1
+o opt_defender_prepare
+0
+i
+i isGameOver
+0
+t game_over
+i
+i pause
+0
+t idle_state
+i
+!
+t
+t defender_prepare
+t initializing
+0
+3
+e headMode
+v _headMode.CloseMid 
+d kick_speed
+v 0
+a behavior_initialize
+0
+i
+i isGameOver
+0
+t game_over
+i
+i pause
+0
+t idle_state
+i
+<
+s
+c 2000
+t initializing
+t wait_for_start
+0
+2
+e headMode
+v _headMode.CloseMid 
+a behavior_nothing
+0
+i
+| 2
+!
+i isGameStart
+0
+i isGameOver
+0
+t wait_for_start
+i
+i pause
+0
+t idle_state
+i
+i isAttacker
+0
+t attack
+t search_ball
+0
+3
+b first_time_attack
+v true
+e attackMode
+v _attackMode.dribble_kick 
+o opt_attack
+0
+i
+i isGameOver
+0
+t game_over
+i
+i pause
+0
+t idle_state
+i
+!
+t
+t attack
+t attack
+0
+2
+e headMode
+v _headMode.FarMid 
+a behavior_nothing
+0
+i
+i isGameOver
+0
+t game_over
+i
+<
+s
+c 1000
+t idle_state
+i
+=
+i sec_state
+0
+v 0
+t search_ball
+i
+| 2
+=
+i sec_state
+0
+v 1
+=
+i sec_state
+0
+v 6
+t penalty
+i
+| 2
+=
+i sec_state
+0
+v 4
+=
+i sec_state
+0
+v 5
+t free_kick
+i
+=
+i sec_state
+0
+v 3
+t time_out
+t search_ball
+0
+1
+o opt_search_for_ball_kick_off
+0
+i
+i isGameOver
+0
+t game_over
+i
+i pause
+0
+t idle_state
+i
+!
+t
+t search_ball
+t go_to_ball
+0
+1
+o opt_go_to_ball
+0
+i
+i isGameOver
+0
+t game_over
+i
+i pause
+0
+t idle_state
+i
+!
+t
+t go_to_ball
+t shoot
+0
+3
+e headMode
+v _headMode.FarMid 
+d kick_speed
+v 2
+o opt_kick_ball
+0
+i
+i isGameOver
+0
+t game_over
+i
+i pause
+0
+t idle_state
+i
+!
+t
+t shoot
+t search_ball
+0
+1
+o opt_penalty
+0
+i
+i isGameOver
+0
+t game_over
+i
+i pause
+0
+t idle_state
+i
+!
+t
+t penalty
+t search_ball
+0
+1
+o opt_free_kick
+0
+i
+i isGameOver
+0
+t game_over
+i
+i pause
+0
+t idle_state
+i
+!
+t
+t free_kick
+t search_ball
+0
+1
+a behavior_nothing
+0
+i
+i isGameOver
+0
+t game_over
+t search_ball
+1
+1
+a behavior_nothing
+0
+t game_over
+
+
+
+5
+search_for_ball n
+rotate_to_ball n
+walk_to_ball n
+stop_walking n
+go_to_ball_done n
+
+search_for_ball
+0
+1
+o opt_search_for_ball
+0
+i
+!
+t
+t search_for_ball
+t rotate_to_ball
+0
+4
+e headMode
+q
+>
+i ballRange
+0
+v 1
+v _headMode.FarMid 
+v _headMode.CloseMid 
+d target_theta
+i ballBearing
+0
+d target_x
+v 0
+a behavior_rotate_around_center
+0
+i
+| 2
+<
+s
+c 500
+i is_robot_moving
+0
+t rotate_to_ball
+i
+<
+i ballRange
+0
+c 0.5
+t go_to_ball_done
+t walk_to_ball
+0
+2
+e headMode
+q
+>
+i ballRange
+0
+v 1
+v _headMode.FarMid 
+v _headMode.CloseMid 
+a behavior_walk_to_ball
+0
+i
+!
+i isBallSeen
+0
+t search_for_ball
+i
+<
+i ballRange
+0
+c 0.5
+t stop_walking
+t walk_to_ball
+0
+2
+e headMode
+q
+>
+i ballRange
+0
+v 1
+v _headMode.FarMid 
+v _headMode.CloseMid 
+a behavior_stop_walk
+0
+i
+<
+s
+*
+v 2
+c 100
+t stop_walking
+t go_to_ball_done
+1
+1
+a behavior_nothing
+0
+t go_to_ball_done
+
+
+
+7
+check_before_walk n
+rotate_before_walk n
+before_velocity_mode n
+velocity_mode n
+stop n
+position_mode n
+done n
+
+check_before_walk
+0
+1
+a behavior_nothing
+0
+i
+| 2
+!
+i isBallSeen
+0
+<
+i ballRange
+0
+v 0.4
+t done
+i
+<
+i shoot_position_range
+0
+v 1
+t position_mode
+t rotate_before_walk
+0
+3
+d target_theta
+i shoot_position_bearing
+0
+d target_x
+v 0
+a behavior_rotate_around_center
+0
+i
+| 2
+i is_robot_moving
+0
+<
+s
+c 500
+t rotate_before_walk
+t before_velocity_mode
+0
+1
+a behavior_nothing
+0
+i
+<
+s
+*
+v 5
+c 100
+t before_velocity_mode
+t velocity_mode
+0
+1
+a behavior_walk
+0
+i
+| 2
+!
+i isBallSeen
+0
+<
+i ballRange
+0
+v 1
+t stop
+t velocity_mode
+0
+1
+o opt_stop_walking
+0
+i
+!
+t
+t stop
+i
+| 2
+!
+i isBallSeen
+0
+<
+i ballRange
+0
+v 0.4
+t done
+t position_mode
+0
+5
+e headMode
+v _headMode.BothTrack 
+d target_theta
+i shoot_position_theta
+0
+d target_x
+i shoot_position_x
+0
+d target_y
+i shoot_position_y
+0
+a behavior_approach_ball
+0
+i
+| 2
+i is_robot_moving
+0
+<
+s
+c 500
+t position_mode
+t done
+1
+1
+a behavior_nothing
+0
+t done
+
+
+
+5
+initialize n
+walk_straight_to_ball n
+do_high_kick n
+kick_done n
+high_kick_over n
+
+initialize
+0
+3
+e headMode
+v _headMode.CloseMid 
+d kick_speed
+v 0
+a behavior_initialize
+0
+i
+<
+s
+c 2000
+t initialize
+t walk_straight_to_ball
+0
+4
+d target_theta
+v 0
+d target_x
+v 0.45
+d target_y
+v 0
+a behavior_approach_ball
+0
+i
+| 2
+i is_robot_moving
+0
+<
+s
+c 500
+t walk_straight_to_ball
+t do_high_kick
+0
+2
+e headMode
+v _headMode.CloseMid 
+a behavior_high_kick
+0
+i
+| 2
+i is_robot_moving
+0
+<
+s
+c 2000
+t do_high_kick
+t kick_done
+0
+1
+a behavior_nothing
+0
+i
+<
+s
+c 500
+t kick_done
+t high_kick_over
+1
+1
+a behavior_nothing
+0
+t high_kick_over
+
+
+
+6
+decide_kick_speed n
+kick_ball_soft n
+kick_ball_mid n
+kick_ball_strong n
+kick_done n
+kick_opt_over n
+
+decide_kick_speed
+0
+1
+a behavior_nothing
+0
+i
+<
+s
+c 3000
+t decide_kick_speed
+i
+=
+o kick_speed
+v 0
+t kick_ball_soft
+i
+<
+i ballRangeToRightLeg
+0
+v 0.22
+t kick_ball_mid
+t kick_ball_strong
+0
+2
+e headMode
+v _headMode.CloseMid 
+a behavior_kick_ball_soft
+0
+i
+| 2
+i is_robot_moving
+0
+<
+s
+c 2000
+t kick_ball_soft
+t kick_done
+0
+2
+e headMode
+v _headMode.CloseMid 
+a behavior_kick_ball_mid
+0
+i
+| 2
+i is_robot_moving
+0
+<
+s
+c 2000
+t kick_ball_mid
+t kick_done
+0
+2
+e headMode
+v _headMode.CloseMid 
+a behavior_kick_ball_strong
+0
+i
+| 2
+i is_robot_moving
+0
+<
+s
+c 2000
+t kick_ball_strong
+t kick_done
+0
+1
+a behavior_nothing
+0
+i
+<
+s
+c 500
+t kick_done
+t kick_opt_over
+1
+1
+a behavior_nothing
+0
+t kick_opt_over
+
+
+
+9
+initialize n
+rotate_to_target n
+decide_to_walk_or_position n
+walk_to_target n
+stop_walking n
+position_to_target n
+wait_for_new_target n
+get_new_target n
+localization_test_done n
+
+initialize
+0
+5
+e headMode
+v _headMode.FarMid 
+d robot_goal_x
+v 2
+d robot_goal_y
+v 0
+d robot_goal_theta
+v 0
+a behavior_initialize
+0
+i
+<
+s
+*
+v 2
+c 2000
+t initialize
+t rotate_to_target
+0
+3
+d target_theta
+i robot_to_target_theta
+0
+d target_x
+v 0
+a behavior_rotate_around_center
+0
+i
+| 2
+<
+s
+c 500
+i is_robot_moving
+0
+t rotate_to_target
+t decide_to_walk_or_position
+0
+1
+a behavior_nothing
+0
+i
+<
+s
+*
+v 4
+c 500
+t decide_to_walk_or_position
+i
+<
+i robot_to_target_range
+0
+c 0.5
+t position_to_target
+t walk_to_target
+0
+1
+a behavior_walk_to_pose
+0
+i
+<
+i robot_to_target_range
+0
+c 0.5
+t stop_walking
+t walk_to_target
+0
+1
+a behavior_stop_walk
+0
+i
+<
+s
+*
+v 20
+c 100
+t stop_walking
+t position_to_target
+0
+1
+a behavior_approach_pose
+0
+i
+| 2
+<
+s
+c 500
+i is_robot_moving
+0
+t position_to_target
+t wait_for_new_target
+0
+1
+a behavior_nothing
+0
+i
+<
+s
+*
+v 300
+c 100
+t wait_for_new_target
+i
+=
+o robot_goal_x
+v 1
+t localization_test_done
+t get_new_target
+0
+4
+d robot_goal_x
+v 1
+d robot_goal_y
+v 1
+d robot_goal_theta
+v 0
+a behavior_nothing
+0
+i
+<
+s
+c 500
+t get_new_target
+t rotate_to_target
+1
+1
+a behavior_nothing
+0
+t localization_test_done
+
+
+
+4
+search_ball n
+near_ball_adjust n
+freeze n
+before_kick n
+
+search_ball
+0
+1
+o opt_search_for_ball_kick_off
+0
+i
+& 2
+!
+t
+n
+i sec_state_info
+0
+v 1
+t search_ball
+i
+=
+i sec_state_info
+0
+v 1
+t freeze
+t near_ball_adjust
+0
+2
+d kick_speed
+v 2
+a behavior_nothing
+0
+i
+& 2
+!
+t
+n
+i sec_state_info
+0
+v 1
+t near_ball_adjust
+t freeze
+0
+1
+a behavior_nothing
+0
+i
+=
+i sec_state_info
+0
+v 2
+t before_kick
+t freeze
+1
+1
+a behavior_nothing
+0
+t before_kick
+
+
+
+18
+start_ball_search n
+look_up_mid n
+look_down_mid n
+look_up_right n
+look_up_left n
+look_down_left n
+look_down_right n
+look_down_right_back n
+look_down_left_back n
+look_up_right_back n
+look_up_left_back n
+ball_seen n
+restart_search n
+turn_body n
+before_velocity_mode n
+velocity_mode n
+stop n
+ball_seen_over n
+
+start_ball_search
+0
+3
+e headMode
+v _headMode.FarMid 
+e lastBallDir
+v _headMode.FarMid 
+a behavior_nothing
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t start_ball_search
+t look_down_mid
+0
+3
+e headMode
+v _headMode.FarMid 
+e lastBallDir
+v _headMode.FarMid 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_up_mid
+t look_up_left
+0
+3
+e headMode
+v _headMode.CloseMid 
+e lastBallDir
+v _headMode.CloseMid 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_down_mid
+t look_down_right
+0
+3
+e headMode
+v _headMode.FarRight 
+e lastBallDir
+v _headMode.FarRight 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_up_right
+t look_up_mid
+0
+3
+e headMode
+v _headMode.FarLeft 
+e lastBallDir
+v _headMode.FarLeft 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_up_left
+t look_up_left_back
+0
+3
+e headMode
+v _headMode.CloseLeft 
+e lastBallDir
+v _headMode.CloseLeft 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_down_left
+t turn_body
+0
+3
+e headMode
+v _headMode.CloseRight 
+e lastBallDir
+v _headMode.CloseRight 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_down_right
+t look_down_right_back
+0
+3
+e headMode
+v _headMode.CloseRightBack 
+e lastBallDir
+v _headMode.CloseRightBack 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_down_right_back
+t look_up_right_back
+0
+3
+e headMode
+v _headMode.CloseLeftBack 
+e lastBallDir
+v _headMode.CloseLeftBack 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_down_left_back
+t look_down_left
+0
+3
+e headMode
+v _headMode.FarRightBack 
+e lastBallDir
+v _headMode.FarRightBack 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_up_right_back
+t look_up_right
+0
+3
+e headMode
+v _headMode.FarLeftBack 
+e lastBallDir
+v _headMode.FarLeftBack 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_up_left_back
+t look_down_left_back
+0
+4
+d ball_found_ball_bearing
+i ballBearing
+0
+d ball_found_ball_range
+i ballRange
+0
+d ball_found_head_angle_yaw
+i ballFoundHeadAngleYaw
+0
+a behavior_nothing
+0
+i
+<
+s
+c 1500
+t ball_seen
+i
+!
+i isBallSeen
+0
+t restart_search
+t ball_seen_over
+0
+1
+a behavior_nothing
+0
+i
+c
+o lastBallDir
+v _headMode.FarMid 
+t look_up_mid
+i
+c
+o lastBallDir
+v _headMode.FarRight 
+t look_up_right
+i
+c
+o lastBallDir
+v _headMode.FarLeft 
+t look_up_left
+i
+c
+o lastBallDir
+v _headMode.CloseRight 
+t look_down_right
+i
+c
+o lastBallDir
+v _headMode.CloseLeft 
+t look_down_left
+i
+c
+o lastBallDir
+v _headMode.CloseLeftBack 
+t look_down_left_back
+i
+c
+o lastBallDir
+v _headMode.CloseRightBack 
+t look_down_right_back
+i
+c
+o lastBallDir
+v _headMode.FarLeftBack 
+t look_up_left_back
+i
+c
+o lastBallDir
+v _headMode.FarRightBack 
+t look_up_right_back
+t look_down_mid
+0
+5
+d target_x
+v 0
+d target_theta
+c 1.7
+e headMode
+v _headMode.FarMid 
+b search_loop_complete
+v false
+a behavior_rotate_around_center
+0
+i
+| 2
+<
+s
+c 500
+i is_robot_moving
+0
+t turn_body
+i
+i isBallSeen
+0
+t ball_seen
+t before_velocity_mode
+0
+1
+a behavior_nothing
+0
+i
+<
+s
+*
+v 5
+c 100
+t before_velocity_mode
+t velocity_mode
+0
+1
+a behavior_walk
+0
+i
+>
+s
+v 4000
+t stop
+t velocity_mode
+0
+1
+o opt_stop_walking
+0
+i
+!
+t
+t stop
+i
+i isBallSeen
+0
+t ball_seen
+t look_down_mid
+1
+1
+a behavior_nothing
+0
+t ball_seen_over
+
+
+
+14
+start_ball_search n
+look_up_mid n
+look_down_mid n
+look_up_right n
+look_up_left n
+look_down_left n
+look_down_right n
+look_down_right_back n
+look_down_left_back n
+look_up_right_back n
+look_up_left_back n
+ball_seen n
+turn_body n
+ball_seen_over n
+
+start_ball_search
+0
+1
+a behavior_nothing
+0
+i
+i isBallSeen
+0
+t ball_seen
+t look_down_mid
+0
+3
+e headMode
+v _headMode.FarMid 
+e lastBallDir
+v _headMode.FarMid 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_up_mid
+t look_up_left
+0
+3
+e headMode
+v _headMode.CloseMid 
+e lastBallDir
+v _headMode.CloseMid 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_down_mid
+t look_down_right
+0
+3
+e headMode
+v _headMode.FarRight 
+e lastBallDir
+v _headMode.FarRight 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_up_right
+t look_up_mid
+0
+3
+e headMode
+v _headMode.FarLeft 
+e lastBallDir
+v _headMode.FarLeft 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_up_left
+t look_up_left_back
+0
+3
+e headMode
+v _headMode.CloseLeft 
+e lastBallDir
+v _headMode.CloseLeft 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_down_left
+t turn_body
+0
+3
+e headMode
+v _headMode.CloseRight 
+e lastBallDir
+v _headMode.CloseRight 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_down_right
+t look_down_right_back
+0
+3
+e headMode
+v _headMode.CloseRightBack 
+e lastBallDir
+v _headMode.CloseRightBack 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_down_right_back
+t look_up_right_back
+0
+3
+e headMode
+v _headMode.CloseLeftBack 
+e lastBallDir
+v _headMode.CloseLeftBack 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_down_left_back
+t look_down_left
+0
+3
+e headMode
+v _headMode.FarRightBack 
+e lastBallDir
+v _headMode.FarRightBack 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_up_right_back
+t look_up_right
+0
+3
+e headMode
+v _headMode.FarLeftBack 
+e lastBallDir
+v _headMode.FarLeftBack 
+a behavior_initialize
+0
+i
+i isBallSeen
+0
+t ball_seen
+i
+<
+s
+c 2500
+t look_up_left_back
+t look_down_left_back
+0
+4
+d ball_found_ball_bearing
+i ballBearing
+0
+d ball_found_ball_range
+i ballRange
+0
+d ball_found_head_angle_yaw
+i ballFoundHeadAngleYaw
+0
+a behavior_nothing
+0
+i
+<
+s
+c 1500
+t ball_seen
+t ball_seen_over
+0
+5
+d target_x
+v 0
+d target_theta
+c 1.7
+e headMode
+v _headMode.FarMid 
+b search_loop_complete
+v false
+a behavior_rotate_around_center
+0
+i
+| 2
+<
+s
+c 500
+i is_robot_moving
+0
+t turn_body
+t look_down_mid
+1
+2
+e headMode
+v _headMode.BothTrack 
+a behavior_nothing
+0
+t ball_seen_over
+
+
+
+5
+start_goal_search n
+look_up_mid n
+look_up_right n
+look_up_left n
+goal_seen n
+
+start_goal_search
+0
+1
+a behavior_nothing
+0
+t look_up_mid
+0
+2
+e headMode
+v _headMode.FarMid 
+a behavior_initialize
+0
+i
+i isGoalSeen
+0
+t goal_seen
+i
+<
+s
+c 2500
+t look_up_mid
+t look_up_right
+0
+2
+e headMode
+v _headMode.FarRight 
+a behavior_initialize
+0
+i
+i isGoalSeen
+0
+t goal_seen
+i
+<
+s
+c 2500
+t look_up_right
+t look_up_left
+0
+3
+e headMode
+v _headMode.FarLeft 
+e lastBallDir
+v _headMode.FarLeft 
+a behavior_initialize
+0
+i
+i isGoalSeen
+0
+t goal_seen
+i
+<
+s
+c 2500
+t look_up_left
+t look_up_mid
+1
+2
+e headMode
+v _headMode.HorizontalTrack 
+a behavior_nothing
+0
+t goal_seen
+
+
+
+3
+set_velocity_to_zero n
+send_zero_state n
+done n
+
+set_velocity_to_zero
+0
+2
+e headMode
+v _headMode.FarMid 
+a behavior_stop_walk
+0
+i
+i is_robot_moving
+0
+t set_velocity_to_zero
+t send_zero_state
+0
+2
+e headMode
+v _headMode.CloseMid 
+a behavior_nothing
+0
+i
+<
+s
+*
+v 2
+c 100
+t send_zero_state
+t done
+1
+2
+e headMode
+v _headMode.CloseMid 
+a behavior_nothing
+0
+t done
+
+
+
+1
+Decision opt_localization_test

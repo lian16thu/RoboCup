@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<model_hqq>
+  <model_n_rows>60</model_n_rows>
+  <model_n_cols>60</model_n_cols>
+  <ftype>icf</ftype>
+  <waldboost>
+    <waldboost_params>
+      <weak_count>30</weak_count>
+      <alpha>5.0000000745058060e-002</alpha></waldboost_params>
+    <waldboost_stumps>
+      <_>
+        <threshold>3130</threshold>
+        <polarity>1</polarity>
+        <pos_value>8.0637401342391968e-001</pos_value>
+        <neg_value>-1.9330860376358032e+000</neg_value></_>
+      <_>
+        <threshold>34108</threshold>
+        <polarity>1</polarity>
+        <pos_value>1.7721740007400513e+000</pos_value>
+        <neg_value>-5.2037513256072998e-001</neg_value></_>
+      <_>
+        <threshold>7110</threshold>
+        <polarity>1</polarity>
+        <pos_value>1.2772967815399170e+000</pos_value>
+        <neg_value>-8.6865729093551636e-001</neg_value></_>
+      <_>
+        <threshold>-1014</threshold>
+        <polarity>1</polarity>
+        <pos_value>1.9863387346267700e+000</pos_value>
+        <neg_value>-3.6596420407295227e-001</neg_value></_>
+      <_>
+        <threshold>-656</threshold>
+        <polarity>1</polarity>
+        <pos_value>-3.3597293496131897e-001</pos_value>
+        <neg_value>4.1832127571105957e+000</neg_value></_>
+      <_>
+        <threshold>9868</threshold>
+        <polarity>1</polarity>
+        <pos_value>1.0175757408142090e+000</pos_value>
+        <neg_value>-4.2659158706665039e+000</neg_value></_>
+      <_>
+        <threshold>131514</threshold>
+        <polarity>1</polarity>
+        <pos_value>-3.2422399520874023e+000</pos_value>
+        <neg_value>3.4432811737060547e+000</neg_value></_></waldboost_stumps>
+    <waldboost_thresholds>
+      -1.9330860376358032e+000 -1.6091203689575195e-001
+      1.1163847446441650e+000 3.1027235984802246e+000
+      3.2136614322662354e+000 3.0200204849243164e+000
+      7.6745185852050781e+000</waldboost_thresholds></waldboost>
+  <features>
+    <_>
+      45 10 54 18 8</_>
+    <_>
+      27 15 43 39 0</_>
+    <_>
+      23 36 56 53 5</_>
+    <_>
+      27 14 36 32 1</_>
+    <_>
+      55 14 58 23 1</_>
+    <_>
+      7 2 15 34 5</_>
+    <_>
+      16 23 54 56 0</_></features></model_hqq>
+</opencv_storage>

@@ -1,0 +1,2 @@
+decision:fiducial_lib:fiducial_msgs:fiducial_pose:fiducials:gamecontroller:head_motion:localization:stereo_process:vision
+-DCATKIN_DEVEL_PREFIX=/home/lian/robot_ws/devel -DCMAKE_INSTALL_PREFIX=/home/lian/robot_ws/install -G Unix Makefiles

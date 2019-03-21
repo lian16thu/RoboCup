@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<model_hqq>
+  <model_n_rows>60</model_n_rows>
+  <model_n_cols>60</model_n_cols>
+  <ftype>icf</ftype>
+  <waldboost>
+    <waldboost_params>
+      <weak_count>34</weak_count>
+      <alpha>7.0000000298023224e-02</alpha></waldboost_params>
+    <waldboost_stumps>
+      <_>
+        <threshold>54944</threshold>
+        <polarity>1</polarity>
+        <pos_value>2.1181952953338623e+00</pos_value>
+        <neg_value>-2.1973034739494324e-01</neg_value></_>
+      <_>
+        <threshold>10299</threshold>
+        <polarity>1</polarity>
+        <pos_value>3.3017387986183167e-01</pos_value>
+        <neg_value>-1.6029130220413208e+00</neg_value></_>
+      <_>
+        <threshold>169</threshold>
+        <polarity>1</polarity>
+        <pos_value>-1.4423912763595581e+00</pos_value>
+        <neg_value>2.1314716339111328e-01</neg_value></_>
+      <_>
+        <threshold>-27148</threshold>
+        <polarity>1</polarity>
+        <pos_value>2.2849023342132568e+00</pos_value>
+        <neg_value>-8.2505159080028534e-02</neg_value></_>
+      <_>
+        <threshold>8436</threshold>
+        <polarity>1</polarity>
+        <pos_value>-4.0214233100414276e-02</pos_value>
+        <neg_value>-2.2019066810607910e+00</neg_value></_>
+      <_>
+        <threshold>1072</threshold>
+        <polarity>1</polarity>
+        <pos_value>1.4198379516601562e+00</pos_value>
+        <neg_value>-2.3277954757213593e-01</neg_value></_>
+      <_>
+        <threshold>2017</threshold>
+        <polarity>1</polarity>
+        <pos_value>-8.3771497011184692e-01</pos_value>
+        <neg_value>7.1608352661132812e-01</neg_value></_>
+      <_>
+        <threshold>1462</threshold>
+        <polarity>1</polarity>
+        <pos_value>-2.2982416152954102e+00</pos_value>
+        <neg_value>1.0494101792573929e-01</neg_value></_>
+      <_>
+        <threshold>781</threshold>
+        <polarity>1</polarity>
+        <pos_value>5.0566452741622925e-01</pos_value>
+        <neg_value>-4.0484127998352051e+00</neg_value></_></waldboost_stumps>
+    <waldboost_thresholds>
+      2.1181952953338623e+00 5.1528227329254150e-01
+      7.2842943668365479e-01 3.0133318901062012e+00
+      8.1142520904541016e-01 2.2312631607055664e+00
+      2.9473466873168945e+00 3.0522878170013428e+00
+      9.3696165084838867e-01</waldboost_thresholds></waldboost>
+  <features>
+    <_>
+      10 18 46 47 0</_>
+    <_>
+      30 40 57 54 5</_>
+    <_>
+      0 20 0 22 0</_>
+    <_>
+      11 5 45 50 1</_>
+    <_>
+      46 3 53 44 8</_>
+    <_>
+      19 11 47 43 2</_>
+    <_>
+      52 5 58 37 6</_>
+    <_>
+      58 8 58 23 0</_>
+    <_>
+      50 31 56 38 4</_></features></model_hqq>
+</opencv_storage>

@@ -1,0 +1,646 @@
+/*
+ * opt_attack: The action as attacker after kick-off.
+ *
+ * Two strategies are supported:
+ * 1. First kick softly along an angle toward the side, follow the ball, rotate, then shoot.        (attackMode = kick_kick)
+ * 2. First dribble (walk with ball in front) along an angle toward the side, rotate, then shoot.   (attackMode = dribble_kick)
+ * The shared part of strategy:
+ * - Try to follow the ball after shoot, and shoot again if the first shoot is not powerful enough.
+ * - If the ball is lost unexpectedly in any stage, search for the ball again and call "opt_go_to_ball" (which supports going to ball from any location) to continue attacking.
+ *
+ * Reads:
+ * - isAttacker
+ * - isBallSeen
+ * - is_robot_moving
+ * - attackMode
+ * - ballRange
+ *
+ * Writes:
+ * - headMode
+ * - target_theta
+ * - target_range
+ * - kick_speed
+ * - virtualGoalLoc.World.x
+ * - virtualGoalLoc.World.y
+ *
+ * Behaves:
+ * - behavior_nothing
+ * - behavior_center_round_clockwise
+ * - behavior_walk
+ * - behavior_stop_walk
+ * - behavior_walk_with_ball
+ *
+ * Calls:
+ * - opt_kick_ball
+ * - opt_search_for_ball_kick_off
+ */
+
+/* The decision template:
+
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                // state decision here
+            }
+
+*/
+
+option opt_attack {
+
+    initial state search_kick_off {         // 0
+        // no need to iterate over all directions; simply look down to locate ball
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (isBallSeen) {
+                    goto rotate_kick_off;
+                    //goto shoot;
+                } else {
+                    if (state_time < T_SEARCH_BALL) {
+                        stay;
+                    }
+                    else {
+                        goto search_after_lost;
+                    }
+                }
+            }
+        }
+        action {
+            headMode = CloseMid;
+            behavior_nothing();
+        }
+    }
+
+    state rotate_kick_off {        // 1
+        // rotate a certain angle before touching the ball
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (!isBallSeen) {
+                    goto search_after_lost;
+                }
+                else {
+                    if (state_time < T_TURN_BODY || is_robot_moving) {
+                        stay;
+                    }
+                    else {
+                        goto decide_attack_mode;
+                        }
+                }
+            }
+        }
+        action {
+            //headMode = HorizontalTrack;
+            //target_theta = THETA_KICKOFF; 
+            target_theta = 0;
+            target_x = R_KICKOFF;
+            behavior_rotate_around_center();
+        }
+    }
+
+    state decide_attack_mode {        // 2
+        
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (state_time < 2 * T) {
+                    stay;
+                }
+                else {
+                    if (attackMode == kick_kick) {
+                            goto first_kick;
+                        }
+                        else if (attackMode == dribble_kick) {
+                            goto dribble;
+                        }
+                        else
+                        {
+                          stay;
+                        }
+                }
+            }
+        }
+        action {
+            behavior_nothing();
+        }
+    }
+
+    state first_kick {               // 3
+        // kick the ball softly along an angle to the side
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (!action_done) {
+                    stay;
+                }
+                else {
+                    goto follow_after_kick_off;
+                }
+            }
+        }
+        action {
+            // look at the goal
+            // headMode = THETA_KICKOFF > 0 ? FarLeft : FarRight;
+
+            // kick softly
+            kick_speed = 0;
+            opt_kick_ball();
+        }
+    }
+
+    state follow_after_kick_off {           // 4
+        // walk straight ahead
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (state_time > T_FOLLOW_AFTER_KICK_OFF) {
+                    if (isBallSeen) {
+                        // have walked for long enough, stop and prepare to kick the ball
+                        goto stop_1_before_shoot;
+                    }
+                    else {
+                        // the ball is lost, search for it again
+                        goto search_after_lost;
+                    }
+                }
+                else {
+                    if (isBallSeen && ballRange < R_KICKABLE) {
+                        // the ball is already very close, stop and prepare to kick it
+                        goto stop_1_before_shoot;
+                    }
+                    else {
+                        // the ball is too far, continue walking
+                        stay;
+                    }
+                }
+            }
+        }
+        action {
+            headMode = CloseMid;
+            // walk with v_x = max, v_y = v_theta = 0
+            behavior_walk();
+        }
+    }
+
+    state stop_1_before_shoot {               // 5
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (is_robot_moving) {
+                    stay;
+                }
+                else {
+                    goto verify_ball_before_shoot;
+                }
+            }
+        }
+        action {
+            // look at the goal
+            //headMode = THETA_KICKOFF > 0 ? FarLeft : FarRight;
+            headMode = FarMid;
+
+            // set velocity to 0
+            behavior_stop_walk();
+        }
+    }
+
+    state verify_ball_before_shoot {             // 6
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (state_time < 25 * T && !isBallSeen) {
+                    stay;
+                }
+                else {
+                if (!isBallSeen)
+                {
+                goto search_after_lost;
+                }
+                else
+                {
+                    // Go to position before shoot if using loc
+                    //goto position_before_shoot;
+                    // goto verify_goal_before_shoot;
+                    goto verify_goal_before_shoot_using_localization;
+                    }
+                }
+            }
+        }
+        action {
+            headMode = CloseMid;
+            behavior_nothing();
+        }
+    }
+
+// take this out if we are using localization
+    state verify_goal_before_shoot {             // 6
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (!isGoalSeen)
+                {
+                goto search_for_goal;
+                }
+                else if ((ballRange < 0.4)  || (needed_turn_angle > 1.4))
+                {
+                        // ball is near enough, prepare to shoot again
+                        goto rotate_to_ball_before_shoot;
+                    }
+                else
+                {
+                    goto position_before_shoot;
+                }
+           }
+        }
+        action {
+            headMode = CloseMid;
+            behavior_nothing();
+        }
+    }
+
+    state verify_goal_before_shoot_using_localization {
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (locConfidence < 0.5)
+                {
+                    goto search_for_goal;
+                }
+                else if ((ballRange < 0.4)  || (needed_turn_angle > 1.4))
+                {
+                        // ball is near enough, prepare to shoot again
+                        goto rotate_to_ball_before_shoot;
+                    }
+                else
+                {
+                    goto go_to_shoot_position_before_shoot;
+                }
+           }
+        }
+        action {
+            headMode = CloseMid;
+            behavior_nothing();
+        }
+    }
+
+    state position_before_shoot {      // 7
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+               if (state_time < T_TURN_BODY || is_robot_moving) {
+                    stay;
+                }            
+                else {
+                        goto shoot;
+                }
+            }
+        }
+        action {
+            //headMode = HorizontalTrack;
+            headMode = CloseMid;
+            target_theta = shoot_position_theta;      // TODO: anti-clockwise as positive, correct if necessary
+            target_x = shoot_position_x;
+            target_y = shoot_position_y;
+            behavior_approach_ball();
+        }
+    }
+
+    state go_to_shoot_position_before_shoot {
+        // go to the right shooting position using localization information
+        decision {
+            if (!action_done) {
+                stay;
+            }
+            else {
+                goto verify_goal_before_shoot_using_localization;
+            }
+        }
+        action {
+            opt_go_to_shoot_position();
+        }
+    }
+
+
+    state rotate_to_ball_before_shoot {      // 8
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (state_time < T_TURN_BODY || is_robot_moving) {
+                    stay;
+                }
+                else {
+                    if (!isBallSeen) {
+                        goto search_after_lost;
+                    }
+                    else
+                    {
+                        goto decide_to_approach_or_rotate;
+                    }
+                }
+            }
+        }
+        action {
+            //headMode = HorizontalTrack;
+            headMode = CloseMid;
+            target_theta = ballBearing;      // TODO: anti-clockwise as positive, correct if necessary
+            target_x = 0;
+            behavior_rotate_around_center();
+        }
+    }
+
+    state decide_to_approach_or_rotate {
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                    if (!isBallSeen) {
+                        goto search_after_lost;
+                    }
+                    else if (state_time < 3 * T)
+                    {
+                      stay;
+                    }
+                    else if (ballRange < 0.4) {
+                        goto rotate_to_goal_before_shoot;
+                    }
+                    else
+                    {
+                        goto walk_straight_to_ball;
+                    }
+                }
+        }
+        action {
+            headMode = CloseMid;
+            behavior_nothing();
+        }
+    }
+
+    state walk_straight_to_ball {             // 9
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+              if (!isBallSeen) {
+                        goto search_after_lost;
+                    }
+               else if (state_time < T_TURN_BODY || is_robot_moving) {
+                    stay;
+                }            
+                else {
+                        goto before_rotate_to_goal_before_shoot;
+                }
+            }
+        }
+        action {
+            //headMode = HorizontalTrack;
+            headMode = CloseMid;
+            target_theta = 0;      // TODO: anti-clockwise as positive, correct if necessary
+            target_x = ballRange - 0.3;
+            target_y = 0;
+            behavior_approach_ball();
+        }
+    }
+
+        state before_rotate_to_goal_before_shoot {
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                    if (!isBallSeen) {
+                        goto search_after_lost;
+                    }
+                    else if (state_time < 3 * T) {
+                        stay;
+                    }
+                    else
+                    {
+                        goto rotate_to_goal_before_shoot;
+                    }
+                }
+        }
+        action {
+            headMode = CloseMid;
+            behavior_nothing();
+        }
+    }
+
+    state rotate_to_goal_before_shoot {     // 10
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (state_time < T_TURN_BODY || is_robot_moving) {
+                    stay;
+                }
+                else {
+                      if (isGoalSeen) {
+                            goto shoot;
+                        }
+                        else {
+                            goto search_for_goal;
+                        }
+                    }
+            }
+        }
+        action {
+            //headMode = HorizontalTrack;
+            headMode = FarMid;
+            target_theta = goalCenterBearing;      // TODO: anti-clockwise as positive, correct if necessary
+            target_x = ballRange;
+            behavior_rotate_around_center();
+        }
+    }
+
+    state search_for_goal {   //11
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (!action_done) {
+                    stay;
+                }
+                else {
+                    goto position_before_shoot;
+                }
+            }
+        }
+        action {
+            opt_search_goal();
+        }
+    }
+
+    state shoot {             // 13
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (!action_done) {
+                    stay;
+                }
+                else {
+                    goto search_after_lost;
+                }
+            }
+        }
+        action {
+            // look at ball, otherwise the ball coordinates will not be accurate
+            headMode = CloseMid;
+
+            // walking kick
+            kick_speed = 2;
+            opt_kick_ball();
+        }
+    }
+
+    state track_after_shoot {               // 15
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (!isBallSeen) {
+                    goto search_after_lost;
+                }
+                else {
+                    if (ballRange < R_KICKABLE) {
+                        // ball is near enough, prepare to shoot again
+                        goto stop_1_before_shoot;
+                    }
+                    else {
+                        stay;
+                    }
+                }
+            }
+        }
+        action {
+            headMode = BothTrack; //Check this
+
+            // rectify direction according to the ball
+            // walk with v_x = max, v_y = 0, v_theta = k * ballBearing  (k is an empirical parameter)
+            behavior_walk_to_ball();
+        }
+    }
+
+    state search_after_lost {               // 16
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (!action_done) {
+                    stay;
+                }
+                else {
+                   if ((ballBearing > 0.5) || (ballBearing < -0.5))
+                   {
+                      goto rotate_to_ball;
+                   }
+                   else if (ballRange < R_KICKABLE) {
+                        // ball is near enough, prepare to shoot again
+                        goto verify_ball_before_shoot;
+                    }
+                    else {
+                        goto track_after_shoot;
+                    }
+                }
+            }
+        }
+        action {
+            opt_search_for_ball_kick_off();
+        }
+    }
+
+       state rotate_to_ball {      // 8
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (state_time < T_TURN_BODY || is_robot_moving) {
+                    stay;
+                }
+                else {
+                    if (!isBallSeen) {
+                        goto search_after_lost;
+                    }
+                    else if (ballRange < R_KICKABLE) {
+                        // ball is near enough, prepare to shoot again
+                        goto verify_ball_before_shoot;
+                    }
+                    else {
+                        goto track_after_shoot;
+                    }
+                }
+            }
+        }
+        action {
+            headMode = FarMid;
+            target_theta = ballBearing;      // TODO: anti-clockwise as positive, correct if necessary
+            target_x = 0;
+            behavior_rotate_around_center();
+        }
+    }
+
+    state dribble {                         // 18
+        // used by dribble_kick mode
+        decision {
+            if (!isAttacker) {
+                goto attack_done;
+            }
+            else {
+                if (state_time < T_DRIBBLE) {
+                    stay;
+                }
+                else {
+                    goto stop_1_before_shoot;
+                }
+            }
+        }
+        action {
+            // look at goal (no look dribble? [lol])
+            // headMode = THETA_KICKOFF > 0 ? FarLeft : FarRight;
+            headMode = FarMid;
+            
+            // walk with v_x = max, v_y = v_theta = 0
+            behavior_walk();
+        }
+    }
+
+    target state attack_done {              // 19
+        decision {
+            stay;
+        }
+        action {
+            behavior_nothing();
+        }
+    }
+}

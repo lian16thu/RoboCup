@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<model_hqq>
+  <model_n_rows>60</model_n_rows>
+  <model_n_cols>60</model_n_cols>
+  <ftype>icf</ftype>
+  <waldboost>
+    <waldboost_params>
+      <weak_count>30</weak_count>
+      <alpha>5.0000000745058060e-002</alpha></waldboost_params>
+    <waldboost_stumps>
+      <_>
+        <threshold>7687</threshold>
+        <polarity>1</polarity>
+        <pos_value>1.9591442346572876e+000</pos_value>
+        <neg_value>-1.8756695985794067e+000</neg_value></_>
+      <_>
+        <threshold>54</threshold>
+        <polarity>1</polarity>
+        <pos_value>2.6592869758605957e+000</pos_value>
+        <neg_value>-1.6386420726776123e+000</neg_value></_>
+      <_>
+        <threshold>-2737</threshold>
+        <polarity>1</polarity>
+        <pos_value>2.3222036361694336e+000</pos_value>
+        <neg_value>-3.6555738449096680e+000</neg_value></_></waldboost_stumps>
+    <waldboost_thresholds>
+      1.9591442346572876e+000 4.6184310913085937e+000
+      6.9406347274780273e+000</waldboost_thresholds></waldboost>
+  <features>
+    <_>
+      8 4 30 19 5</_>
+    <_>
+      44 28 58 37 3</_>
+    <_>
+      16 18 46 29 1</_></features></model_hqq>
+</opencv_storage>

@@ -1,0 +1,100 @@
+/*
+Code for calculating shoot position using localization:
+
+distance_ball_goal = sqrt((ball_world_x - goal_center_world_x)^2 + (ball_world_y - goal_center_world_y)^2);
+shoot_position_world_{x,y} = goal_center_world_{x,y} + (ball_world_{x,y} - goal_center_world_{x,y}) * (distance_ball_goal + distance_shoot_position) / distance_ball_goal;
+
+*/
+
+option opt_go_to_shoot_position {
+    initial state check_before_walk {
+        decision {
+            if (!isBallSeen || ballRange < 0.4) {
+                goto done;
+            }
+            else if (shoot_position_range < 1) {
+                goto position_mode;
+            }
+            else {
+                goto rotate_before_walk;
+            }
+        }
+        action {
+            behavior_nothing();
+        }
+    }
+
+    state rotate_before_walk {
+        decision {
+            if (is_robot_moving || state_time < T_TURN_BODY) {
+                stay;
+            }
+            else {
+                goto velocity_mode;
+            }
+        }
+        action {
+            target_theta = shoot_position_bearing;
+            target_x = 0;
+            behavior_rotate_around_center();
+        }
+    }
+
+    state velocity_mode {
+        decision {
+            if (!isBallSeen || ballRange < 1) {
+                goto stop;
+            }
+            else {
+                stay;
+            }
+        }
+        action {
+            behavior_walk();
+        }
+    }
+
+    state stop {
+        decision {
+            if (!action_done) {
+                stay;
+            }
+            else if (!isBallSeen || ballRange < 0.4) {
+                goto done;
+            }
+            else {
+                goto position_mode;
+            }
+        }
+        action {
+            opt_stop_walking();
+        }
+    }
+
+    state position_mode {
+        decision {
+            if (is_robot_moving || state_time < T_TURN_BODY) {
+                stay;
+            }
+            else {
+                goto done;
+            }
+        }
+        action {
+            headMode = CloseMid;
+            target_theta = shoot_position_theta;      // TODO: anti-clockwise as positive, correct if necessary
+            target_x = shoot_position_x;
+            target_y = shoot_position_y;
+            behavior_approach_ball();
+        }
+    }
+
+    target state done {
+        decision {
+            stay;
+        }
+        action {
+            behavior_nothing();
+        }
+    }
+}

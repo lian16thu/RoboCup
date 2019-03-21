@@ -1,0 +1,12 @@
+<launch>
+
+  <!-- First, launch "data_input_output". Node reads from vision topics and outputs localization result on topic "localization/output_data". -->
+  <node name="data_input_output" pkg="localization" type="data_input_output" output="screen">
+  </node>
+
+  <!-- Then, launch "particle_filter_localization". Node creates particle filter and field and realizes localization.
+  Output is the particle set published over topic "localization/particle_set" -->
+  <node name="particle_filter_localization" pkg="localization" type="particle_filter_localization" output="screen">
+  </node>
+
+</launch>

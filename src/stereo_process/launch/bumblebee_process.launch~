@@ -1,0 +1,19 @@
+<launch>
+	<group ns="camera">
+  <!-- First, launch "stereo_image_pro" to start the stereo camera input process and produce the 3D point cloud. Output is on screen. -->
+  <node name="stereo_image_proc" pkg="stereo_image_proc" type="stereo_image_proc" output="screen" args="_approximate_sync:=true _queue_size:=4"> 
+  </node>
+
+  <!-- Then, launch "detection_3d". Node detects objects in the 3D point cloud.
+  Output is published over the topic "stereo_process/detection_3d_output" -->
+  <node name="detection_3d" pkg="stereo_process" type="detection_3d" output="screen">
+  </node>
+</group>
+
+  <!-- Then, launch "rviz" for vizualization. Output is on screen. -->
+  <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d /home/robotlab719/.rviz/bumblebee.rviz"> 
+  </node>
+
+</launch>
+
+

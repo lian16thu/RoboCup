@@ -1,0 +1,27 @@
+<launch>
+
+  <!-- First, launch "behavior_initial_pose" for the estimation of the initial pose of our robot. The node publishes over "behavior/initial_pose". -->
+  <node name="behavior_initial_pose" pkg="localization" type="behavior_initial_pose" output="screen">
+    <param name="init_pose" value="1" />
+</node>
+
+  <!-- Then, launch "loc_head_odom_broadcaster". The node publishes the transformation "/odom" to "/base_link and "/base_link" to "/robot_head".
+  Output is the particle set published over topic "localization/particle_set" -->
+  <node name="loc_head_odom_broadcaster" pkg="localization" type="loc_head_odom_broadcaster" output="screen">
+  </node>
+
+  <!-- After, launch the "localization_module.launch". -->
+  <include file="$(find localization)/launch/localization_module.launch"/>
+
+  <!-- Then, launch "localization_visualization". Node creates visualization of the particles in our particle filter on the field.
+  Output is published over the topic "localization/visualization" -->
+  <node name="localization_visualization" pkg="localization" type="localization_visualization" output="screen">
+  </node>
+
+  <!-- Last, launch "image_view" to see the visualization results from topic "localization/particle_set" -->
+  <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+      <remap from="image" to="localization/visualization"/>
+      <param name="autosize" value="true" />
+  </node>
+
+</launch>

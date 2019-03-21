@@ -1,0 +1,56 @@
+/*
+ * opt_stop_walking: Two-stage behavior for switching from velocity mode to other gait modes.
+ *
+ * The first stage: set velocity to 0 (behavior_stop_walk)
+ * The second stage: send 0 state (behavior_nothing)
+ *
+ * Reads:
+ * - is_robot_moving
+ * - headMode
+ *
+ * Behaves:
+ * - behavior_stop_walk
+ * - behavior_nothing
+ */
+
+option opt_stop_walking {
+    initial state set_velocity_to_zero {                // 0
+        decision {
+            if (is_robot_moving) {
+                stay;
+            }
+            else {
+                goto send_zero_state;
+            }
+        }
+        action {
+            headMode = FarMid;      // try to look at the goal
+            behavior_stop_walk();
+        }
+    }
+
+    state send_zero_state {                             // 1
+        decision {
+            if (state_time < 2 * T) {
+                stay;
+            }
+            else {
+                goto done;
+            }
+        }
+        action {
+            headMode = CloseMid;    // try to look at the ball
+            behavior_nothing();
+        }
+    }
+
+    target state done {                                 // 2
+        decision {
+            stay;
+        }
+        action {
+            headMode = CloseMid;
+            behavior_nothing();
+        }
+    }
+}

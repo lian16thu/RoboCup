@@ -1,0 +1,135 @@
+/* opt_kick_ball: Kick the ball, supporting various speeds (as specified by "kick_speed")
+ *
+ * Reads:
+ * - kick_speed
+ *
+ * Writes:
+ * - headMode
+ *
+ * Behaves:
+ * - behavior_nothing
+ * - behavior_kick_ball_soft
+ * - behavior_kick_ball_mid
+ * - behavior_kick_ball_strong
+ */
+
+option opt_kick_ball
+{
+    initial state decide_kick_speed                 // 0
+    {
+        decision
+        {
+            if (state_time < T_WAIT_BEFORE_KICK)
+            {
+                stay;
+            }
+            else if (kick_speed == 0)
+            {
+                goto kick_ball_soft;
+            }
+            else if (kick_speed == 1)
+            {
+                goto kick_ball_mid;
+            }
+            else
+            {
+                goto kick_ball_strong;
+            }
+        }
+        action
+        {
+            behavior_nothing();
+        }
+    }
+
+    state kick_ball_soft                            // 1
+    {
+        decision
+        {
+            if (is_robot_moving || state_time < T_KICK)
+            {
+                stay;
+            }
+            else
+            {
+                goto kick_done;
+            }
+        }
+        action
+        {
+            headMode = CloseMid;
+            behavior_kick_ball_soft();
+        }
+    }
+
+    state kick_ball_mid                         // 2
+    {
+        decision
+        {
+            if (is_robot_moving ||state_time < T_KICK)
+            {
+                stay;
+            }
+            else
+            {
+                goto kick_done;
+            }
+        }
+        action
+        {
+            headMode = CloseMid;
+            behavior_kick_ball_mid();
+        }
+    }
+
+    state kick_ball_strong                  // 3
+    {
+        decision
+        {
+            if (is_robot_moving ||state_time < T_KICK)
+            {
+                stay;
+            }
+            else
+            {
+                goto kick_done;
+            }
+        }
+        action
+        {
+            headMode = CloseMid;
+            behavior_kick_ball_strong();
+        }
+    }
+
+    state kick_done              // 4
+    {
+        decision
+        {
+        if (state_time < T_KICK_OVER)
+            {
+                stay;
+            }
+            else
+            {
+                goto kick_opt_over;
+            }
+        }
+        action
+        {
+            behavior_nothing();
+        }
+    }
+
+        target state kick_opt_over              // 5
+    {
+        decision
+        {
+            stay;
+        }
+        action
+        {
+            behavior_nothing();
+        }
+    }
+}

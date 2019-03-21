@@ -1,0 +1,20 @@
+(cl:defpackage decision-srv
+  (:use )
+  (:export
+   "PATHPLANING_THE"
+   "<PATHPLANING_THE-REQUEST>"
+   "PATHPLANING_THE-REQUEST"
+   "<PATHPLANING_THE-RESPONSE>"
+   "PATHPLANING_THE-RESPONSE"
+   "HEAD"
+   "<HEAD-REQUEST>"
+   "HEAD-REQUEST"
+   "<HEAD-RESPONSE>"
+   "HEAD-RESPONSE"
+   "WALK"
+   "<WALK-REQUEST>"
+   "WALK-REQUEST"
+   "<WALK-RESPONSE>"
+   "WALK-RESPONSE"
+  ))
+

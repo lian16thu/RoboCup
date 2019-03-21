@@ -1,0 +1,33 @@
+
+(cl:in-package :asdf)
+
+(defsystem "vision-msg"
+  :depends-on (:roslisp-msg-protocol :roslisp-utils :geometry_msgs-msg
+               :std_msgs-msg
+)
+  :components ((:file "_package")
+    (:file "Ball" :depends-on ("_package_Ball"))
+    (:file "_package_Ball" :depends-on ("_package"))
+    (:file "Goalpost" :depends-on ("_package_Goalpost"))
+    (:file "_package_Goalpost" :depends-on ("_package"))
+    (:file "Landmark" :depends-on ("_package_Landmark"))
+    (:file "_package_Landmark" :depends-on ("_package"))
+    (:file "Landmarks" :depends-on ("_package_Landmarks"))
+    (:file "_package_Landmarks" :depends-on ("_package"))
+    (:file "Line" :depends-on ("_package_Line"))
+    (:file "_package_Line" :depends-on ("_package"))
+    (:file "Lines" :depends-on ("_package_Lines"))
+    (:file "_package_Lines" :depends-on ("_package"))
+    (:file "LinesLandmarks" :depends-on ("_package_LinesLandmarks"))
+    (:file "_package_LinesLandmarks" :depends-on ("_package"))
+    (:file "Markers" :depends-on ("_package_Markers"))
+    (:file "_package_Markers" :depends-on ("_package"))
+    (:file "ObjectOnImage" :depends-on ("_package_ObjectOnImage"))
+    (:file "_package_ObjectOnImage" :depends-on ("_package"))
+    (:file "Obstacle" :depends-on ("_package_Obstacle"))
+    (:file "_package_Obstacle" :depends-on ("_package"))
+    (:file "Opponents" :depends-on ("_package_Opponents"))
+    (:file "_package_Opponents" :depends-on ("_package"))
+    (:file "field" :depends-on ("_package_field"))
+    (:file "_package_field" :depends-on ("_package"))
+  ))

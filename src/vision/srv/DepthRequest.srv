@@ -1,0 +1,6 @@
+# Service for asking the depth of a point on the rectified 2D image and getting the response from the 3D point cloud
+
+int32 u  # the x on the rectified image
+int32 v  # the y on the rectified image
+---
+float64 depth # depth of the pointf from the 3D point cloud

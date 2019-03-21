@@ -1,0 +1,247 @@
+/** Symbol definitions */
+
+namespace xabsl_symbol("xabsl_symbols")
+{
+
+    /** ----- Constants ----------------------*/
+    float const T = 100 "ms";                     // clock period
+    float const T_MOTOR_INIT = 500 "ms";        // time needed for "behavior_initialize_motors"
+    float const T_INIT = 2000 "ms";               // time needed for "behavior_initializing"
+    float const T_IDLE = 1000 "ms";               // time to wait in idle state
+    float const T_WAIT_BEFORE_WALK = 200 "ms";    // time to wait before walking in opt_go_to_ball; symbols is_left and is_near_enough should be updated by @cpp during this period
+    float const T_WAIT_BEFORE_KICK = 2000 "ms";   // time to wait before kicking the ball; TODO: why is there such a long delay?
+    float const T_KICK = 2000 "ms";               // time needed for the kicking behaviors
+    float const T_KICK_OVER = 500 "ms";               // time needed after the kick
+    float const T_SEARCH_BALL = 2000 "ms";        // time needed for the head to stay in each direction when searching for ball
+    float const T_BALL_SEEN = 500 "ms";          // time to wait for updating ball bearing, range 
+    float const T_TURN_BODY = 2000 "ms";          // minimum time for in-place rotating behavior
+    float const THETA_TURN_BODY_SEARCH = 1.7 "rad";       // the angle to turn the body if ball is not seen in a search loop
+    
+    // Note: is_within_tol should be set when BOTH THETA_TOL and R_TOL are satisfied
+    float const THETA_TOL = 0.1 "rad";            // maximum ball bearing when starting to go to ball
+    float const R_TOL = 3 "m";                    // minimum radius of arc walking
+
+    float const R_KICKABLE = 0.6 "m";             // the maximum ballBearing when kicking can be performed
+
+    float const R_KICKOFF = 0.2 "m";              // the radius with which to center around the ball at kick off
+    float const THETA_KICKOFF = 0.6 "rad";        // the angle to rotate at kick off (anti-clockwise)
+    float const T_FOLLOW_AFTER_KICK_OFF = 3000 "ms";      // maximum time to walk after kick off
+    float const T_BLIND_FOLLOW_AFTER_SHOOT = 3000 "ms";   // maximum time to walk after shooting before the ball is seen (if ball is not seen longer than this time, search again)
+    float const T_DRIBBLE = 4000 "ms";            // dribbling time used in dribble_kick attack mode
+    
+    
+    
+    
+    /** ----- Data structure definition ----- */
+    enum _orientation
+    {
+        Up,
+        Down,
+        Left,
+        Right,
+        Mid,
+        UnKnown
+    };
+
+    enum _action
+    {
+        zero,
+        stand,
+        step,
+        passive,
+        active,
+        kick
+    };
+
+    enum _speed
+    {
+        speed0,
+        speed1,
+        speed2,
+        speed3
+    };
+
+    enum _LR
+    {
+        LLLL, LLL, LL, L, M, R, RR, RRR, RRRR
+    };
+
+    enum _headMode
+    {
+        FarLeft,
+        FarMid,
+        FarRight,
+        FarRightBack,
+        FarLeftBack,
+
+        CloseLeft,
+        CloseMid,    // straight
+        CloseRight,
+        CloseRightBack,
+        CloseLeftBack,
+
+        HorizontalTrack,
+        VerticalTrack,
+        BothTrack,
+
+        TrackBallAndGoal  // add this mode?
+    };
+
+    enum _attackMode {
+        kick_kick,        // first kick along an angle toward the side, then shoot
+        dribble_kick      // first dribble along an angle toward the side, then shoot
+    };
+
+    /** ----- Input ----- */
+    /* Game */
+
+    bool input isGameStart;      //  whether the game is started
+    bool input isGameOver;      //  whether the game is over
+    float input timeLeft "sec";      //  time left
+
+    bool input bBallLocRequired;   // not used for now
+    bool input bGoalLocRequired;   // not used for now
+
+    bool input isSet;
+
+    bool input isPathPlanningRequested;  // not used for now
+    bool input isAttacker;
+    bool input pause;
+    float input sec_state;
+    float input sec_state_info;
+
+    bool input is_robot_moving;
+
+    bool input isReady;
+    float input adjust_theta;
+
+
+    /* Vision */
+
+    /* ball */
+    bool input isBallSeen;
+    //bool input isBallLost;
+
+    //  float input ballLoc.Image.x "px";  //
+    //  float input ballLoc.Image.y "px";
+    float input ballLoc.World.x "mm";
+    float input ballLoc.World.y "mm";
+
+    float input ballRange;
+    float input ballBearing;
+
+    float input ballFoundHeadAngleYaw;
+
+    bool input first_time_track_ball;
+    bool input ball_moved_while_moving;
+    float input expected_ball_bearing;
+    bool input cannot_kick;
+
+    //    enum _orientation input lostBallDir;  // delete this, use headMode
+
+
+    /* goal */
+    bool input isGoalSeen;
+    float input robot_goal_bearing_odom;
+    /*  bool input isGoalLost;
+
+
+        enum _orientation input goalLostDirection;
+
+        float input goalLocLeft.Image.x "px";
+        float input goalLocLeft.Image.y "px";
+        float input goalLocRight.Image.x "px";
+        float input goalLocRight.Image.y "px"; */
+    float input goalFoundHeadAngleYaw;
+
+    float input goalLocLeft.World.x "mm";
+    float input goalLocLeft.World.y "mm";
+    float input goalLocRight.World.x "mm";
+    float input goalLocRight.World.y "mm";
+
+    float input goalCenterRange;
+    float input goalCenterBearing;
+
+    /* opponent */
+    bool input isOpponentSeen;
+
+    float input opponentCenterBearing;
+    float input opponentRange;
+
+    float input opponentCenter.World.x "mm";
+    float input opponentCenter.World.y "mm";
+
+    /* Robot Location */
+    float input robotLoc.x "mm";
+    float input robotLoc.y "mm";
+    float input robotLoc.theta "rad"; // [-3.14, 3.14]
+    float input locConfidence;
+    float input gyroHead;
+    float input gyroBody;
+
+    float input kickDestTheta "rad";   // [-3.14, 3.14] not used for now
+
+    float input headAngleYaw;
+    float input headAnglePitch;
+    float input odom_orientation;
+
+
+
+
+    /** ----- Output ----- */
+    /*  enum _action output actionCode;
+        float output duration;*/
+    float output kick_angle;  //not used for now
+    float output kick_leg;
+    float output kick_speed;
+
+    float output angleSave;
+    enum _headMode output headMode;
+    enum _headMode output lastBallDir;
+    enum _headMode output nextGoalDir;
+
+    bool output first_kick;
+    float output turned;
+
+
+    float output target_range;
+    float output target_bearing;
+    float output target_x;
+    float output target_y;
+    float output target_theta;
+    float output robot_goal_bearing;
+
+    float output ball_found_head_angle_yaw;
+    float output goal_found_head_angle_yaw;
+
+    /** ---- Internal ---- */
+    bool internal ball_first_seen;
+    float internal robot_turn_theta;
+    float internal camera_search_step;
+    float internal ball_found_ball_bearing;
+    float internal ball_found_ball_range;
+
+    float internal goal_found_goal_bearing;
+    float internal goal_found_goal_range;
+    bool internal search_loop_complete;
+
+
+    // Additions 2018
+    bool input is_within_tol;
+     bool input is_left;
+    float input tol_theta "rad";
+    float input virtualGoalRange "m";
+    float input virtualGoalBearing "rad";
+    float input theta_start_walking "rad";
+    float input shoot_position_x "m";
+    float input shoot_position_y "m";
+    float input shoot_position_theta "rad";
+    float input needed_turn_angle "rad";
+
+    float input shoot_position_bearing "rad";
+    float input shoot_position_range "m";
+
+    enum _attackMode internal attackMode;
+
+    bool internal first_time_attack;
+}

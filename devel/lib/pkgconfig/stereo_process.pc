@@ -1,0 +1,8 @@
+prefix=/home/lian/robot_ws/devel
+
+Name: stereo_process
+Description: Description of stereo_process
+Version: 0.0.0
+Cflags: -I/home/lian/robot_ws/devel/include -I/home/lian/robot_ws/src/stereo_process/include
+Libs: -L/home/lian/robot_ws/devel/lib -ldetection_behavior
+Requires: cv_bridge dynamic_reconfigure image_transport roscpp rospy sensor_msgs std_msgs tf laser_geometry image_geometry
